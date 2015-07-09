@@ -1,6 +1,6 @@
 /**
  * Angular Google Analytics - Easy tracking for your AngularJS application
- * @version v0.0.15 - 2015-04-27
+ * @version v0.0.15 - 2015-07-09
  * @link http://github.com/revolunet/angular-google-analytics
  * @author Julien Bouquillon <julien@revolunet.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -8,7 +8,10 @@
 'use strict';
 
 angular.module('angular-google-analytics', [])
-  .provider('Analytics', function () {
+  .service('Analytics',
+    ['$document', '$location', '$log', '$rootScope', '$window',
+    function ($document, $location, $log, $rootScope, $window) {
+
     var created = false,
         trackRoutes = true,
         accountId,
@@ -122,15 +125,33 @@ angular.module('angular-google-analytics', [])
       return true;
     };
 
-    /**
-     * Public Service
-     */
-    this.$get = ['$document', '$location', '$log', '$rootScope', '$window', function ($document, $location, $log, $rootScope, $window) {
       var me = this;
 
       var getUrl = function () {
         var url = trackUrlParams ? $location.url() : $location.path();
         return removeRegExp ? url.replace(removeRegExp, '') : url;
+      };
+
+      var getUtmParams = function () {
+        var utmToCampaignVar = {
+          utm_source: 'campaignSource',
+          utm_medium: 'campaignMedium',
+          utm_term: 'campaignTerm',
+          utm_content: 'campaignContent',
+          utm_campaign: 'campaignName'
+        };
+        var object = {};
+
+        angular.forEach($location.search(), function (value, key) {
+          var campaignVar = utmToCampaignVar[key];
+
+          if (angular.isDefined(campaignVar)) {
+            object[campaignVar] = value;
+          }
+
+        });
+
+        return object;
       };
 
       /**
@@ -210,7 +231,14 @@ angular.module('angular-google-analytics', [])
           ga.src = gaSrc;
           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
         })(gaSrc);
-        
+
+        // activates page tracking
+        if (trackRoutes) {
+          $rootScope.$on(pageEvent, function () {
+            me._trackPage();
+          });
+        }
+
         return created = true;
       };
 
@@ -295,6 +323,13 @@ angular.module('angular-google-analytics', [])
           }
         }
 
+        // activates page tracking
+        if (trackRoutes) {
+          $rootScope.$on(pageEvent, function () {
+            me._trackPage();
+          });
+        }
+
         return created = true;
       };
 
@@ -345,6 +380,7 @@ angular.module('angular-google-analytics', [])
             'page': trackPrefix + url,
             'title': title
           };
+          angular.extend(opt_fieldObject, getUtmParams());
           if (angular.isObject(custom)) {
             angular.extend(opt_fieldObject, custom);
           }
@@ -668,7 +704,6 @@ angular.module('angular-google-analytics', [])
        */
       this._trackTransaction = function (transactionId, affiliation, revenue, tax, shipping, coupon, list, step, option) {
         this._setAction('purchase', this._getActionFieldObject(transactionId, affiliation, revenue, tax, shipping, coupon, list, step, option));
-        this._pageView();
       };
 
       /**
@@ -679,7 +714,6 @@ angular.module('angular-google-analytics', [])
        */
       this._trackRefund = function (transactionId) {
         this._setAction('refund', this._getActionFieldObject(transactionId));
-        this._pageView();
       };
 
       /**
@@ -691,7 +725,6 @@ angular.module('angular-google-analytics', [])
        */
       this._trackCheckOut = function (step, option) {
         this._setAction('checkout', this._getActionFieldObject(null, null, null, null, null, null, null, step, option));
-        this._pageView();
       };
 
       /**
@@ -767,23 +800,6 @@ angular.module('angular-google-analytics', [])
         });
       };
 
-
-      // creates the ganalytics tracker
-      if (!delayScriptTag) {
-        if (analyticsJS) {
-          this._createAnalyticsScriptTag();
-        } else {
-          this._createScriptTag();
-        }
-      }
-
-      // activates page tracking
-      if (trackRoutes) {
-        $rootScope.$on(pageEvent, function () {
-          me._trackPage();
-        });
-      }
-
       /**
        * Track User Timings
        * @timingCategory (Required): A string for categorizing all user timing variables into logical groups(e.g jQuery).
@@ -796,6 +812,20 @@ angular.module('angular-google-analytics', [])
       };
 
       return {
+        setAccount: this.setAccount,
+        trackPages: this.trackPages,
+        trackPrefix: this.trackPrefix,
+        setDomainName: this.setDomainName,
+        useDisplayFeatures: this.useDisplayFeatures,
+        useAnalytics: this.useAnalytics,
+        useEnhancedLinkAttribution: this.useEnhancedLinkAttribution,
+        useCrossDomainLinker: this.useCrossDomainLinker,
+        setCrossLinkDomains: this.setCrossLinkDomains,
+        setPageEvent: this.setPageEvent,
+        useECommerce: this.useECommerce,
+        setRemoveRegExp: this.setRemoveRegExp,
+        setExperimentId: this.setExperimentId,
+        trackUrlParams: this.trackUrlParams,
         _logs: me._logs,
         displayFeatures: displayFeatures,
         ecommerce: ecommerce,
@@ -891,17 +921,17 @@ angular.module('angular-google-analytics', [])
           me._set(name, value);
         }
       };
-    }];
-  })
+    }])
+
 
   .directive('gaTrackEvent', ['Analytics', '$parse', function (Analytics, $parse) {
     return {
       restrict: 'A',
       link: function (scope, element, attrs) {
-        var options = $parse(attrs.gaTrackEvent)(scope);
+        var options = $parse(attrs.gaTrackEvent);
         element.bind('click', function () {
           if (options.length > 1) {
-            Analytics.trackEvent.apply(Analytics, options);
+            Analytics.trackEvent.apply(Analytics, options(scope));
           }
         });
       }

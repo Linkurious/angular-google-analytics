@@ -4,15 +4,15 @@
 
 describe('angular-google-analytics', function() {
   beforeEach(module('angular-google-analytics'));
-  beforeEach(module(function (AnalyticsProvider) {
-    AnalyticsProvider.setAccount('UA-XXXXXX-xx');
+  beforeEach(module(function (Analytics) {
+    Analytics.setAccount('UA-XXXXXX-xx');
   }));
 
   describe('required settings missing', function () {
     describe('for default ga script injection', function () {
-      beforeEach(module(function (AnalyticsProvider) {
-        AnalyticsProvider.setAccount(false);
-        AnalyticsProvider.useAnalytics(false);
+      beforeEach(module(function (Analytics) {
+        Analytics.setAccount(false);
+        Analytics.useAnalytics(false);
       }));
 
       it('should not inject a script tag', function () {
@@ -35,9 +35,9 @@ describe('angular-google-analytics', function() {
     });
 
     describe('for analytics script injection', function () {
-      beforeEach(module(function (AnalyticsProvider) {
-        AnalyticsProvider.setAccount(false);
-        AnalyticsProvider.useAnalytics(true);
+      beforeEach(module(function (Analytics) {
+        Analytics.setAccount(false);
+        Analytics.useAnalytics(true);
       }));
 
       it('should not inject a script tag', function () {
@@ -61,8 +61,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('enabled delayedScriptTag', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.delayScriptTag(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.delayScriptTag(true);
     }));
 
     it('should have a truthy value for Analytics.delayScriptTag', function () {
@@ -112,8 +112,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('NOT automatic trackPages', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.trackPages(false);
+    beforeEach(module(function (Analytics) {
+      Analytics.trackPages(false);
     }));
 
     it('should NOT generate a trackpage on routeChangeSuccess', function () {
@@ -140,8 +140,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('eventTracks with ga.js', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.trackPages(false);
+    beforeEach(module(function (Analytics) {
+      Analytics.trackPages(false);
     }));
 
     it('should generate eventTracks', function () {
@@ -178,8 +178,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('supports dc.js', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.useDisplayFeatures(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.useDisplayFeatures(true);
     }));
 
     it('should inject the DC script', function () {
@@ -218,8 +218,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('supports ignoreFirstPageLoad', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.ignoreFirstPageLoad(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.ignoreFirstPageLoad(true);
     }));
 
     it('supports ignoreFirstPageLoad config', function () {
@@ -236,13 +236,13 @@ describe('angular-google-analytics', function() {
       cookieExpires: 20000
     };
 
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.useAnalytics(true);
-      AnalyticsProvider.setCookieConfig(cookieConfig);
-      AnalyticsProvider.useDisplayFeatures(true);
-      AnalyticsProvider.useECommerce(true);
-      AnalyticsProvider.useEnhancedLinkAttribution(true);
-      AnalyticsProvider.setExperimentId('12345');
+    beforeEach(module(function (Analytics) {
+      Analytics.useAnalytics(true);
+      Analytics.setCookieConfig(cookieConfig);
+      Analytics.useDisplayFeatures(true);
+      Analytics.useECommerce(true);
+      Analytics.useEnhancedLinkAttribution(true);
+      Analytics.setExperimentId('12345');
     }));
 
     it('should inject the Analytics script', function () {
@@ -326,8 +326,8 @@ describe('angular-google-analytics', function() {
     });
 
     describe('with eventTracks', function () {
-      beforeEach(module(function (AnalyticsProvider) {
-        AnalyticsProvider.trackPages(false);
+      beforeEach(module(function (Analytics) {
+        Analytics.trackPages(false);
       }));
 
       it('should generate eventTracks', function () {
@@ -357,9 +357,9 @@ describe('angular-google-analytics', function() {
   });
 
   describe('e-commerce transactions with analytics.js', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.useAnalytics(true);
-      AnalyticsProvider.useECommerce(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.useAnalytics(true);
+      Analytics.useECommerce(true);
     }));
 
     it('should have ecommerce enabled', function () {
@@ -403,9 +403,9 @@ describe('angular-google-analytics', function() {
   });
 
   describe('enhanced e-commerce transactions with analytics.js', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.useAnalytics(true);
-      AnalyticsProvider.useECommerce(true, true);
+    beforeEach(module(function (Analytics) {
+      Analytics.useAnalytics(true);
+      Analytics.useECommerce(true, true);
     }));
 
     it('should have ecommerce disabled', function () {
@@ -578,8 +578,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('supports arbitrary page events', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.setPageEvent('$stateChangeSuccess');
+    beforeEach(module(function (Analytics) {
+      Analytics.setPageEvent('$stateChangeSuccess');
     }));
 
     it('should inject the Analytics script', function () {
@@ -592,8 +592,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('supports RegExp path scrubbing', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.setRemoveRegExp(new RegExp(/\/\d+?$/));
+    beforeEach(module(function (Analytics) {
+      Analytics.setRemoveRegExp(new RegExp(/\/\d+?$/));
     }));
 
     it('should scrub urls', function () {
@@ -605,8 +605,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('parameter defaulting on trackPage', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.trackPages(false);
+    beforeEach(module(function (Analytics) {
+      Analytics.trackPages(false);
     }));
 
     it('should set url and title when no parameters provided', function () {
@@ -640,9 +640,9 @@ describe('angular-google-analytics', function() {
       { tracker: 'UA-12345-45' }
     ];
 
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.setAccount(trackers);
-      AnalyticsProvider.useAnalytics(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.setAccount(trackers);
+      Analytics.useAnalytics(true);
     }));
 
     it('should call ga create event for each tracker', function () {
@@ -679,9 +679,9 @@ describe('angular-google-analytics', function() {
       { tracker: 'UA-12345-67', cookieConfig: 'yourdomain.org' }
     ];
 
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.setAccount(trackers);
-      AnalyticsProvider.useAnalytics(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.setAccount(trackers);
+      Analytics.useAnalytics(true);
     }));
 
     it('should call ga require for each tracker', function () {
@@ -723,9 +723,9 @@ describe('angular-google-analytics', function() {
       { tracker: 'UA-12345-45', trackEvent: true }
     ];
 
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.setAccount(trackers);
-      AnalyticsProvider.useAnalytics(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.setAccount(trackers);
+      Analytics.useAnalytics(true);
     }));
 
     it('should track events for configured tracking objects only', function () {
@@ -742,8 +742,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('enabled url params tracking', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.trackUrlParams(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.trackUrlParams(true);
     }));
 
     it('should grab query params in the url', function () {
@@ -755,8 +755,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('createAnalyticsScriptTag', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.delayScriptTag(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.delayScriptTag(true);
     }));
 
     it('should inject a script tag', function () {
@@ -772,8 +772,8 @@ describe('angular-google-analytics', function() {
   });
 
   describe('createAnalyticsScriptTag', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.delayScriptTag(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.delayScriptTag(true);
     }));
 
     it('should inject a script tag', function () {
@@ -789,8 +789,8 @@ describe('angular-google-analytics', function() {
 
 
   describe('should add user timing', function () {
-    beforeEach(module(function (AnalyticsProvider) {
-      AnalyticsProvider.useAnalytics(true);
+    beforeEach(module(function (Analytics) {
+      Analytics.useAnalytics(true);
     }));
 
     it('should add user timing', function () {
