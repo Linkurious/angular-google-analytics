@@ -1,7 +1,10 @@
 'use strict';
 
 angular.module('angular-google-analytics', [])
-  .provider('Analytics', function () {
+  .service('Analytics',
+    ['$document', '$location', '$log', '$rootScope', '$window',
+    function ($document, $location, $log, $rootScope, $window) {
+
     var created = false,
         trackRoutes = true,
         accountId,
@@ -115,10 +118,6 @@ angular.module('angular-google-analytics', [])
       return true;
     };
 
-    /**
-     * Public Service
-     */
-    this.$get = ['$document', '$location', '$log', '$rootScope', '$window', function ($document, $location, $log, $rootScope, $window) {
       var me = this;
 
       var getUrl = function () {
@@ -226,6 +225,13 @@ angular.module('angular-google-analytics', [])
           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
         })(gaSrc);
 
+        // activates page tracking
+        if (trackRoutes) {
+          $rootScope.$on(pageEvent, function () {
+            me._trackPage();
+          });
+        }
+
         return created = true;
       };
 
@@ -308,6 +314,13 @@ angular.module('angular-google-analytics', [])
             expScript.src = "//www.google-analytics.com/cx/api.js?experiment=" + experimentId;
             s.parentNode.insertBefore(expScript, s);
           }
+        }
+
+        // activates page tracking
+        if (trackRoutes) {
+          $rootScope.$on(pageEvent, function () {
+            me._trackPage();
+          });
         }
 
         return created = true;
@@ -780,23 +793,6 @@ angular.module('angular-google-analytics', [])
         });
       };
 
-
-      // creates the ganalytics tracker
-      if (!delayScriptTag) {
-        if (analyticsJS) {
-          this._createAnalyticsScriptTag();
-        } else {
-          this._createScriptTag();
-        }
-      }
-
-      // activates page tracking
-      if (trackRoutes) {
-        $rootScope.$on(pageEvent, function () {
-          me._trackPage();
-        });
-      }
-
       /**
        * Track User Timings
        * @timingCategory (Required): A string for categorizing all user timing variables into logical groups(e.g jQuery).
@@ -809,6 +805,23 @@ angular.module('angular-google-analytics', [])
       };
 
       return {
+        setAccount: this.setAccount,
+        trackPages: this.trackPages,
+        trackPrefix: this.trackPrefix,
+        setDomainName: this.setDomainName,
+        useDisplayFeatures: this.useDisplayFeatures,
+        useAnalytics: this.useAnalytics,
+        useEnhancedLinkAttribution: this.useEnhancedLinkAttribution,
+        useCrossDomainLinker: this.useCrossDomainLinker,
+        setCrossLinkDomains: this.setCrossLinkDomains,
+        setPageEvent: this.setPageEvent,
+        setCookieConfig: this.setCookieConfig,
+        useECommerce: this.useECommerce,
+        setRemoveRegExp: this.setRemoveRegExp,
+        setExperimentId: this.setExperimentId,
+        ignoreFirstPageLoad: this.ignoreFirstPageLoad,
+        trackUrlParams: this.trackUrlParams,
+        delayScriptTag: this.delayScriptTag,
         _logs: me._logs,
         displayFeatures: displayFeatures,
         ecommerce: ecommerce,
@@ -904,8 +917,8 @@ angular.module('angular-google-analytics', [])
           me._set(name, value);
         }
       };
-    }];
-  })
+    }])
+
 
   .directive('gaTrackEvent', ['Analytics', '$parse', function (Analytics, $parse) {
     return {
